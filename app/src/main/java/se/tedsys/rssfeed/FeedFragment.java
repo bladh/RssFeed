@@ -11,7 +11,6 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class FeedFragment extends Fragment {
 
@@ -19,7 +18,7 @@ public class FeedFragment extends Fragment {
     private FeedFragmentListener mListener;
     private RecyclerView mRecyclerView;
     private FeedItemAdapter mAdapter;
-    private List<FeedItem> mDataset;
+    private ArrayList<FeedItem> mDataset;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -54,6 +53,13 @@ public class FeedFragment extends Fragment {
         RecyclerView.LayoutManager manager = new LinearLayoutManager(getContext());
         mRecyclerView.setLayoutManager(manager);
         mRecyclerView.setAdapter(mAdapter);
+        if (savedInstanceState != null) {
+            ArrayList<FeedItem> savedItems = savedInstanceState.getParcelableArrayList(getString(R.string.feed_results));
+            if (savedItems != null) {
+                mDataset = savedItems;
+                mAdapter.updateDataSet(savedItems);
+            }
+        }
         return mainView;
     }
 
@@ -75,10 +81,16 @@ public class FeedFragment extends Fragment {
         mListener = null;
     }
 
-    public void updateItems(List<FeedItem> items) {
+    public void updateItems(ArrayList<FeedItem> items) {
         Log.d(TAG, "Received " + items.size() + " new items!");
         mDataset = items;
         mAdapter.updateDataSet(items);
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putParcelableArrayList(getString(R.string.feed_results), mDataset);
     }
 
     public interface FeedFragmentListener {
