@@ -3,12 +3,16 @@ package se.tedsys.rssfeed;
 import android.app.Fragment;
 import android.content.Context;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import java.util.List;
+
 public class FeedFragment extends Fragment {
 
+    private static final String TAG = FeedFragment.class.getSimpleName();
     private FeedFragmentListener mListener;
 
     /**
@@ -18,7 +22,7 @@ public class FeedFragment extends Fragment {
     public FeedFragment() {
     }
 
-    public static FeedFragment newInstance(int columnCount) {
+    public static FeedFragment newInstance() {
         FeedFragment fragment = new FeedFragment();
         Bundle args = new Bundle();
         fragment.setArguments(args);
@@ -56,6 +60,10 @@ public class FeedFragment extends Fragment {
     public void onDetach() {
         super.onDetach();
         mListener = null;
+    }
+
+    public void updateItems(List<FeedItem> items) {
+        Log.d(TAG, "Received " + items.size() + " new items!");
     }
 
     public interface FeedFragmentListener {
