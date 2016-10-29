@@ -64,30 +64,17 @@ public class RssRetrieverService extends IntentService {
             Log.e(TAG, "Cannot parse XML because the parser is null");
             return;
         }
-        final InputStream stream;
-        try {
-            stream = getUrlStream(DEFAULT_URL);
-        } catch (IOException e) {
-            Log.e(TAG, "Could not access url: " + DEFAULT_URL);
-            return;
-        }
-        try {
+
+        final List<FeedItem> items = new ArrayList<>();
+        try (InputStream stream = getUrlStream(DEFAULT_URL)) {
             mParser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
             mParser.setInput(stream, NAMESPACE);
             mParser.nextTag();
-        } catch (XmlPullParserException e) {
-            Log.e(TAG, "Error parsing xml", e);
+            items.addAll(readFeed(mParser));
         } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        final List<FeedItem> items;
-        try {
-            items = readFeed(mParser);
-            assert items != null;
-        } catch (XmlPullParserException | IOException | AssertionError e) {
-            Log.e(TAG, "Error parsing xml", e);
-            return;
+            Log.e(TAG, "IOException", e);
+        } catch (XmlPullParserException e) {
+            Log.e(TAG, "Error parsing XML", e);
         }
         Log.d(TAG, "Found tags: " + items.size());
         for(FeedItem item : items) {
