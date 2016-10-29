@@ -12,7 +12,7 @@ import android.view.ViewGroup;
 
 import java.util.ArrayList;
 
-public class FeedFragment extends Fragment {
+public class FeedFragment extends Fragment implements FeedItemAdapter.AdapterListener {
 
     private static final String TAG = FeedFragment.class.getSimpleName();
     private FeedFragmentListener mListener;
@@ -49,7 +49,7 @@ public class FeedFragment extends Fragment {
                              Bundle savedInstanceState) {
         View mainView = inflater.inflate(R.layout.fragment_feed, container, false);
         mRecyclerView = (RecyclerView) mainView.findViewById(R.id.recycler_view);
-        mAdapter = new FeedItemAdapter(mDataset);
+        mAdapter = new FeedItemAdapter(mDataset, this);
         RecyclerView.LayoutManager manager = new LinearLayoutManager(getContext());
         mRecyclerView.setLayoutManager(manager);
         mRecyclerView.setAdapter(mAdapter);
@@ -93,7 +93,12 @@ public class FeedFragment extends Fragment {
         outState.putParcelableArrayList(getString(R.string.feed_results), mDataset);
     }
 
+    @Override
+    public void feedItemClicked(FeedItem item) {
+        mListener.onFeedItemClicked(item);
+    }
+
     public interface FeedFragmentListener {
-        //no methods yet
+        void onFeedItemClicked(FeedItem item);
     }
 }

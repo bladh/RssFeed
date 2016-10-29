@@ -51,4 +51,9 @@ public class MainActivity extends AppCompatActivity implements FeedFragment.Feed
         super.onSaveInstanceState(outState);
         outState.putBoolean(DOWNLOADED_STATE_TAG, mDownloaded);
     }
+
+    @Override
+    public void onFeedItemClicked(FeedItem item) {
+        Toast.makeText(this, "Clicked article!" + item.title, Toast.LENGTH_SHORT).show();
+    }
 }

@@ -9,24 +9,27 @@ import android.widget.TextView;
 import java.util.List;
 
 
-public class FeedItemAdapter extends RecyclerView.Adapter<FeedItemAdapter.ViewHolder> {
+public class FeedItemAdapter extends RecyclerView.Adapter<FeedItemAdapter.ViewHolder>
+        implements ViewHolderClickListener {
 
     private List<FeedItem> mDataset;
+    final private AdapterListener mListener;
 
     public void updateDataSet(List<FeedItem> items) {
         mDataset = items;
         notifyDataSetChanged();
     }
 
-    public FeedItemAdapter(List<FeedItem> dataset) {
+    public FeedItemAdapter(List<FeedItem> dataset, AdapterListener listener) {
         mDataset = dataset;
+        mListener = listener;
     }
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View v = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.card_item, parent, false);
-        return new ViewHolder(v);
+        return new ViewHolder(v, this);
     }
 
     @Override
@@ -35,7 +38,6 @@ public class FeedItemAdapter extends RecyclerView.Adapter<FeedItemAdapter.ViewHo
         holder.mTitle.setText(item.title);
         holder.mAuthor.setText(item.author);
         holder.mDate.setText(item.publishedDate);
-
     }
 
     @Override
@@ -43,17 +45,37 @@ public class FeedItemAdapter extends RecyclerView.Adapter<FeedItemAdapter.ViewHo
         return mDataset.size();
     }
 
-    public static class ViewHolder extends RecyclerView.ViewHolder {
-        // each data item is just a string in this case
+    @Override
+    public void onViewHolderClicked(int index) {
+        FeedItem item = mDataset.get(index);
+        mListener.feedItemClicked(item);
+
+    }
+
+    public static class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         TextView mTitle;
         TextView mAuthor;
         TextView mDate;
+        ViewHolderClickListener clickListener;
 
-        public ViewHolder(View v) {
+        public ViewHolder(View v, ViewHolderClickListener listener) {
             super(v);
+            v.setOnClickListener(this);
+            clickListener = listener;
             mTitle = (TextView) itemView.findViewById(R.id.card_title);
             mAuthor = (TextView) itemView.findViewById(R.id.card_author);
             mDate = (TextView) itemView.findViewById(R.id.card_date);
         }
+
+        @Override
+        public void onClick(View view) {
+            if (clickListener != null) {
+                clickListener.onViewHolderClicked(getAdapterPosition());
+            }
+        }
+    }
+
+    interface AdapterListener {
+        void feedItemClicked(FeedItem item);
     }
 }
