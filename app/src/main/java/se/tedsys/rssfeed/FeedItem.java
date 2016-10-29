@@ -16,20 +16,20 @@ public class FeedItem implements Parcelable {
     };
     public final String title;
     public final String publishedDate;
-    public final String id;
+    public final String author;
     public final String link;
 
-    public FeedItem(String title, String publishedDate, String id, String link) {
+    public FeedItem(String title, String publishedDate, String author, String link) {
         this.title = title;
         this.publishedDate = publishedDate;
-        this.id = id;
+        this.author = author;
         this.link = link;
     }
 
     private FeedItem(Parcel in) {
         title = in.readString();
         publishedDate = in.readString();
-        id = in.readString();
+        author = in.readString();
         link = in.readString();
     }
 
@@ -41,7 +41,7 @@ public class FeedItem implements Parcelable {
     public void writeToParcel(Parcel out, int flags) {
         out.writeString(title);
         out.writeString(publishedDate);
-        out.writeString(id);
+        out.writeString(author);
         out.writeString(link);
     }
 }

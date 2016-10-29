@@ -119,7 +119,7 @@ public class RssRetrieverService extends IntentService {
     private FeedItem readEntry(XmlPullParser parser) throws XmlPullParserException, IOException {
         parser.require(XmlPullParser.START_TAG, NAMESPACE, "entry");
         String title = null;
-        String id = null;
+        String author = null;
         String link = null;
         String date = null;
         while (parser.next() != XmlPullParser.END_TAG) {
@@ -131,8 +131,8 @@ public class RssRetrieverService extends IntentService {
                 case "title":
                     title = readTag(parser, "title");
                     break;
-                case "id":
-                    id = readTag(parser, "id");
+                case "author":
+                    author = readAuthor(parser);
                     break;
                 case "link":
                     link = readLink(parser);
@@ -145,7 +145,18 @@ public class RssRetrieverService extends IntentService {
                     break;
             }
         }
-        return new FeedItem(title, date, id, link);
+        return new FeedItem(title, date, author, link);
+    }
+
+    private String readAuthor(XmlPullParser parser) throws XmlPullParserException, IOException {
+        parser.require(XmlPullParser.START_TAG, NAMESPACE, "author");
+        parser.nextTag();
+        parser.require(XmlPullParser.START_TAG, NAMESPACE, "name");
+        String author = parser.nextText();
+        parser.require(XmlPullParser.END_TAG, NAMESPACE, "name");
+        parser.nextTag();
+        parser.require(XmlPullParser.END_TAG, NAMESPACE, "author");
+        return author;
     }
 
     private String readTag(XmlPullParser parser, String tag) throws IOException, XmlPullParserException {
