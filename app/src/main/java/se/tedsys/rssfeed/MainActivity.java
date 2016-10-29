@@ -24,12 +24,17 @@ public class MainActivity extends AppCompatActivity implements FeedFragment.Feed
 
     @Override
     public void onReceiveResult(int resultCode, Bundle resultData) {
-        List<FeedItem> items = resultData.getParcelableArrayList(getString(R.string.feed_results));
-        if (items != null) {
-            Log.d(TAG, "Got " + items.size() + " items!");
-            for (FeedItem item : items) {
-                Log.d(TAG, item.title);
+        if (resultCode == 0) {
+            List<FeedItem> items = resultData.getParcelableArrayList(getString(R.string.feed_results));
+            if (items != null) {
+                Log.d(TAG, "Got " + items.size() + " items!");
+                for (FeedItem item : items) {
+                    Log.d(TAG, item.title);
+                }
             }
+        } else {
+            String error = resultData.getString(getString(R.string.feed_error));
+            Toast.makeText(this, error, Toast.LENGTH_SHORT).show();
         }
     }
 }

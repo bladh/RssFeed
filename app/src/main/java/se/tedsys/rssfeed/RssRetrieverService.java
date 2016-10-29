@@ -72,21 +72,29 @@ public class RssRetrieverService extends IntentService {
         }
 
         final ArrayList<FeedItem> items = new ArrayList<>();
+        String error = null;
         try (InputStream stream = getUrlStream(DEFAULT_URL)) {
             mParser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
             mParser.setInput(stream, NAMESPACE);
             mParser.nextTag();
             items.addAll(readFeed(mParser));
         } catch (IOException e) {
-            Log.e(TAG, "IOException", e);
+            error = "IOException";
+            Log.e(TAG, error, e);
         } catch (XmlPullParserException e) {
-            Log.e(TAG, "Error parsing XML", e);
+            error = "Error parsing XML";
+            Log.e(TAG, error, e);
         }
 
         if (mReceiver != null) {
             final Bundle bundle = new Bundle();
-            bundle.putParcelableArrayList(getString(R.string.feed_results), items);
-            mReceiver.send(0, bundle);
+            if (error == null) {
+                bundle.putParcelableArrayList(getString(R.string.feed_results), items);
+                mReceiver.send(0, bundle);
+            } else {
+                bundle.putString(getString(R.string.feed_error), error);
+                mReceiver.send(1, bundle);
+            }
         }
     }
 
