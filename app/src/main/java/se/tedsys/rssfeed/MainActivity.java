@@ -1,5 +1,7 @@
 package se.tedsys.rssfeed;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Handler;
 import android.os.ResultReceiver;
 import android.support.v7.app.AppCompatActivity;
@@ -54,6 +56,7 @@ public class MainActivity extends AppCompatActivity implements FeedFragment.Feed
 
     @Override
     public void onFeedItemClicked(FeedItem item) {
-        Toast.makeText(this, "Clicked article!" + item.title, Toast.LENGTH_SHORT).show();
+        Intent browser = new Intent(android.content.Intent.ACTION_VIEW, Uri.parse(item.link));
+        startActivity(browser);
     }
 }
