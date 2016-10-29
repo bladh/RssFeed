@@ -3,6 +3,8 @@ package se.tedsys.rssfeed;
 import android.app.IntentService;
 import android.content.Intent;
 import android.content.Context;
+import android.os.Bundle;
+import android.os.ResultReceiver;
 import android.util.Log;
 
 import junit.framework.Assert;
@@ -24,9 +26,11 @@ import java.util.List;
 public class RssRetrieverService extends IntentService {
     private static final String TAG = RssRetrieverService.class.getSimpleName();
     private static final String ACTION_GET = "se.tedsys.rssfeed.action.GET";
+    private static final String TAG_RECEIVER = "TAG_RECEIVER";
     private static final String DEFAULT_URL = "http://www.theverge.com/google/rss/index.xml";
     private static final String NAMESPACE = null;
 
+    private ResultReceiver mReceiver;
     private XmlPullParser mParser;
     private boolean mParsing;
 
@@ -41,8 +45,9 @@ public class RssRetrieverService extends IntentService {
         mParsing = false;
     }
 
-    public static void requestFeed(Context context) {
+    public static void requestFeed(Context context, ResultReceiver receiver) {
         final Intent intent = new Intent(context, RssRetrieverService.class);
+        intent.putExtra(TAG_RECEIVER, receiver);
         intent.setAction(ACTION_GET);
         context.startService(intent);
     }
@@ -53,6 +58,7 @@ public class RssRetrieverService extends IntentService {
             final String action = intent.getAction();
             if (ACTION_GET.equals(action) && !mParsing) {
                 Log.d(TAG, "Activity requests feed");
+                mReceiver = intent.getParcelableExtra(TAG_RECEIVER);
                 parseXml();
                 mParsing = true;
             }
@@ -65,7 +71,7 @@ public class RssRetrieverService extends IntentService {
             return;
         }
 
-        final List<FeedItem> items = new ArrayList<>();
+        final ArrayList<FeedItem> items = new ArrayList<>();
         try (InputStream stream = getUrlStream(DEFAULT_URL)) {
             mParser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
             mParser.setInput(stream, NAMESPACE);
@@ -76,9 +82,11 @@ public class RssRetrieverService extends IntentService {
         } catch (XmlPullParserException e) {
             Log.e(TAG, "Error parsing XML", e);
         }
-        Log.d(TAG, "Found tags: " + items.size());
-        for(FeedItem item : items) {
-            Log.d(TAG, item.title);
+
+        if (mReceiver != null) {
+            final Bundle bundle = new Bundle();
+            bundle.putParcelableArrayList(getString(R.string.feed_results), items);
+            mReceiver.send(0, bundle);
         }
     }
 
